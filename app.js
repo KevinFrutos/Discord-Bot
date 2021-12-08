@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import { SlashCommandBuilder } from '@discordjs/builders'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import { Client, Intents } from 'discord.js'
@@ -6,8 +7,8 @@ import { Client, Intents } from 'discord.js'
 dotenv.config()
 
 const comandos = [
-    { name: "buenas", description: "Saluda a alguien" },
-    { name: "adios", description: "Se despide de alguien" }
+    new SlashCommandBuilder().setName("hola").setDescription("Se te enviara un saludo"),
+    new SlashCommandBuilder().setName("adios").setDescription("Se te enviara una despedida")
 ]
 
 const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
@@ -35,7 +36,7 @@ client.on('interactionCreate', async interaction => {
         return
     }
 
-    if (interaction.commandName === 'buenas') {
+    if (interaction.commandName === 'hola') {
         await interaction.reply(`Hola a ti tambien ${interaction.user.tag}`)
     } else if (interaction.commandName === 'adios') {
         await interaction.reply(`Nos vemos en la proxima ${interaction.user.tag}`)
