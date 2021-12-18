@@ -1,29 +1,30 @@
 import dotenv from 'dotenv'
-import { SlashCommandBuilder } from '@discordjs/builders'
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
-import { Client, Intents } from 'discord.js'
+import { Client, Intents, Collection } from 'discord.js'
+import fs from 'fs'
 
 dotenv.config()
 
-const comandos = [
-    new SlashCommandBuilder().setName("hola").setDescription("Se te enviara un saludo"),
-    new SlashCommandBuilder().setName("adios").setDescription("Se te enviara una despedida")
-]
-
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
 const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
 
+client.commands = new Collection();
+const commands = [];
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 (async () => {
+    for (const file of commandFiles) {
+        const command = await import(`./commands/${file}`)
+        commands.push(command.default.data);
+        client.commands.set(command.default.data.name, command)
+    }
     try {
-
-        await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: comandos })
+        await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands })
         console.log("Comandos regisrados correctamente");
     } catch (error) {
         console.log(error)
     }
 })()
-
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
 
 client.on('ready', async () => {
     console.log(`Conectado como: ${client.user.tag}`);
@@ -36,10 +37,15 @@ client.on('interactionCreate', async interaction => {
         return
     }
 
-    if (interaction.commandName === 'hola') {
-        await interaction.reply(`Hola a ti tambien ${interaction.user.tag}`)
-    } else if (interaction.commandName === 'adios') {
-        await interaction.reply(`Nos vemos en la proxima ${interaction.user.tag}`)
+    const command = client.commands.get(interaction.commandName);
+
+    if (!command) return;
+
+    try {
+        await command.default.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
     }
 })
 
