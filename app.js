@@ -13,11 +13,13 @@ client.commands = new Collection();
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 (async () => {
+    // IMPORTANDO COMANDOS
     for (const file of commandFiles) {
         const command = await import(`./commands/${file}`)
         commands.push(command.default.data);
         client.commands.set(command.default.data.name, command)
     }
+    // REGISTRANDO COMANDOS
     try {
         await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands })
         console.log("Comandos regisrados correctamente");
@@ -42,7 +44,7 @@ client.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
-        await command.default.execute(interaction);
+        await command.default.execute(interaction, client);
     } catch (error) {
         console.error(error);
         await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
