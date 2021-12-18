@@ -30,8 +30,6 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 
 client.on('ready', async () => {
     console.log(`Conectado como: ${client.user.tag}`);
-    const canal = await client.channels.fetch(process.env.GENERAL_CHANNEL)
-    await canal.send("Estoy aqui para poner Orden")
 })
 
 client.on('interactionCreate', async interaction => {
