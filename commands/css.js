@@ -6,7 +6,8 @@ const css = {
 		.setDescription("Documentacion de CSS")
 		.addSubcommand(subcommand => subcommand.setName("flexbox").setDescription("Información de Flexbox"))
 		.addSubcommand(subcommand => subcommand.setName("media_query").setDescription("Informacion de media query"))
-		.addSubcommand(subcommand => subcommand.setName("bootstrap").setDescription("Informacion de Bootstrap")),
+		.addSubcommand(subcommand => subcommand.setName("bootstrap").setDescription("Informacion de Bootstrap"))
+		.addSubcommand(subcommand => subcommand.setName("resources").setDescription("Información general de recursos para CSS")),
 	async execute(interaction, client) {
 		const canal = await client.channels.fetch(process.env.GENERAL_CHANNEL);
 		if (interaction.options.getSubcommand() === "flexbox") {
@@ -29,6 +30,13 @@ const css = {
 			await canal.send(`
         # RECURSOS ONLINE:
         - https://getbootstrap.com/
+        `);
+		} else if (interaction.options.getSubcommand() === "resources") {
+			await interaction.reply('Estos son todos los recursos generales de "CSS" de los que dispongo');
+			await canal.send(`
+        # RECURSOS ONLINE:
+        - https://mycolor.space/
+		- https://htmlcolorcodes.com/es/
         `);
 		}
 	},
